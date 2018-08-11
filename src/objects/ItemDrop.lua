@@ -18,21 +18,14 @@ function ItemDrop:init(type, x, y)
 end
 
 function ItemDrop:mousepressed(x, y)
-    if self:containsPoint(x, y) then
-        self.selected = true
-        Selection:set({
-            type = self.type,
-            x = self.pos.x,
-            y = self.pos.y,
-        })
-    end
-end
-
-function ItemDrop:mousereleased(x, y)
-    if self.selected then
-        self.selected = false
-        Selection:clear()
-    end
+    if not self:containsPoint(x, y) then return false end
+    self.selected = true
+    Selection:set(self.type, function(used)
+        if not used then
+            self.selected = false
+        end
+    end)
+    return true
 end
 
 function ItemDrop:draw()

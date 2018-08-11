@@ -3,6 +3,7 @@ local Selection = require 'src.Selection'
 local Inventory = require 'src.objects.Inventory'
 local ItemDrop = require 'src.objects.ItemDrop'
 local TextBox = require 'src.objects.TextBox'
+local Trash = require 'src.objects.Trash'
 
 local Game = {}
 
@@ -19,6 +20,7 @@ function Game:enter()
         ItemDrop('KNIFE', 200, 40),
         ItemDrop('PENDANT', 280, 40),
     }
+    self.trash = Trash(40, 200)
 end
 
 function Game:update(dt)
@@ -26,17 +28,27 @@ function Game:update(dt)
 end
 
 function Game:mousepressed(x, y)
-    self.inventory:mousepressed(x, y)
-    for _, drop in ipairs(self.drops) do
-        drop:mousepressed(x, y)
+    if not Selection:get() then
+        if self.inventory:mousepressed(x, y) then return end
+        for _, drop in ipairs(self.drops) do
+            if drop:mousepressed(x, y) then return end
+        end
     end
 end
 
 function Game:mousereleased(x, y)
-    self.inventory:mousereleased(x, y)
-    for _, drop in ipairs(self.drops) do
-        drop:mousereleased(x, y)
+    local type = Selection:get()
+    if type then
+        if self.inventory:receiveItem(type, x, y) then
+            Selection:take()
+            return
+        end
+        if self.trash:receiveItem(type, x, y) then
+            Selection:take()
+            return
+        end
     end
+    Selection:reset()
 end
 
 function Game:draw()
@@ -45,6 +57,7 @@ function Game:draw()
     for _, drop in ipairs(self.drops) do
         drop:draw()
     end
+    self.trash:draw()
     Selection:draw()
 end
 

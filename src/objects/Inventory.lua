@@ -1,4 +1,5 @@
 local Class = require 'modules.hump.class'
+local Vector = require 'modules.hump.vector'
 local Constants = require 'src.Constants'
 local Items = require 'src.Items'
 local Selection = require 'src.Selection'
@@ -18,30 +19,22 @@ function Inventory:init(x, y)
 end
 
 function Inventory:mousepressed(x, y)
+    if not self:containsPoint(x, y) then return false end
+
     local cx, cy =
         math.floor((x - self.pos.x) / Constants.CELL_SIZE),
         math.floor((y - self.pos.y) / Constants.CELL_SIZE)
     local key = self:getItemAt(cx, cy)
-    if key == nil then return end
-    Selection:set(self.items[key])
-    table.remove(self.items, key)
-end
+    if key == nil then return false end
 
-function Inventory:mousereleased(x, y)
-    local selection = Selection:get()
-    if selection then
-        local type = selection.type
-        local item = Items[type]
-        local cx, cy =
-            math.floor((x - self.pos.x) / Constants.CELL_SIZE - (item.width - 1) / 2),
-            math.floor((y - self.pos.y) / Constants.CELL_SIZE - (item.height - 1) / 2)
-        if self:checkItemFits(type, cx, cy) then
-            self:addItem(type, cx, cy)
-        else
-            self:addItem(type, selection.x, selection.y)
+    local item = self.items[key]
+    table.remove(self.items, key)
+    Selection:set(item.type, function(used)
+        if not used then
+            self:addItem(item.type, item.x, item.y)
         end
-        Selection:clear()
-    end
+    end)
+    return true
 end
 
 function Inventory:draw()
@@ -71,10 +64,54 @@ function Inventory:draw()
         )
     end
 
+    -- draw selection overlay
+    local type = Selection:get()
+    local mx, my = love.mouse.getPosition()
+    if type and self:containsPoint(mx, my) then
+        local item = Items[type]
+        local cx, cy =
+            math.floor((mx - self.pos.x) / Constants.CELL_SIZE - (item.width - 1) / 2),
+            math.floor((my - self.pos.y) / Constants.CELL_SIZE - (item.height - 1) / 2)
+
+        if self:checkItemFits(type, cx, cy) then
+            love.graphics.setColor(0, 1, 0, 0.5)
+        else
+            love.graphics.setColor(1, 0, 0, 0.5)
+        end
+
+        for i = cx, cx + item.width - 1 do
+            for j = cy, cy + item.height - 1 do
+                love.graphics.rectangle('fill',
+                    i * Constants.CELL_SIZE,
+                    j * Constants.CELL_SIZE,
+                    Constants.CELL_SIZE,
+                    Constants.CELL_SIZE)
+            end
+        end
+        love.graphics.setColor(1, 1, 1, 1)
+    end
+
     love.graphics.pop()
 end
 
+function Inventory:receiveItem(type, x, y)
+    if not self:containsPoint(x, y) then return false end
+
+    local item = Items[type]
+    local cx, cy =
+        math.floor((x - self.pos.x) / Constants.CELL_SIZE - (item.width - 1) / 2),
+        math.floor((y - self.pos.y) / Constants.CELL_SIZE - (item.height - 1) / 2)
+
+    if self:checkItemFits(type, cx, cy) then
+        self:addItem(type, cx, cy)
+        return true
+    end
+
+    return false
+end
+
 function Inventory:addItem(type, cx, cy)
+    assert(self:isValidPosition(cx, cy))
     table.insert(self.items, {
         type = type,
         x = cx,

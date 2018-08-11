@@ -8,6 +8,10 @@ function HitBox:init(x, y, w, h)
     self.size = Vector(w, h)
 end
 
+function HitBox:mousepressed(x, y) end
+
+function HitBox:mousereleased(x, y) end
+
 function HitBox:draw()
     if self:containsPoint(love.mouse.getPosition()) then
         love.graphics.setColor(1, 0, 0, 0.5)
