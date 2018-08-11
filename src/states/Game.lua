@@ -2,6 +2,7 @@ local Signal = require 'modules.hump.signal'
 local Constants = require 'src.Constants'
 local Items = require 'src.Items'
 local Selection = require 'src.Selection'
+local Enemy = require 'src.objects.Enemy'
 local Inventory = require 'src.objects.Inventory'
 local ItemDrop = require 'src.objects.ItemDrop'
 local TextBox = require 'src.objects.TextBox'
@@ -25,6 +26,7 @@ function Game:enter()
         Constants.SCREEN_WIDTH - 3.5 * Constants.CELL_SIZE,
         Constants.SCREEN_HEIGHT - 2 * Constants.CELL_SIZE
     )
+    self.enemy = Enemy('SLIME', 200, 200)
     self.drops = {
         ItemDrop('HEART', 40, 40),
         ItemDrop('SWORD', 120, 40),
@@ -32,8 +34,8 @@ function Game:enter()
         ItemDrop('PENDANT', 280, 40),
     }
 
-    Signal.register('item_select', function(type)
-        self.textbox:setText(Items[type].description)
+    Signal.register('text', function(text)
+        self.textbox:setText(text)
     end)
 end
 
@@ -61,6 +63,10 @@ function Game:mousereleased(x, y)
             Selection:take()
             return
         end
+        if self.enemy:receiveItem(type, x, y) then
+            Selection:take()
+            return
+        end
     end
     Selection:reset()
 end
@@ -72,6 +78,7 @@ function Game:draw()
         drop:draw()
     end
     self.trash:draw()
+    self.enemy:draw()
     Selection:draw()
 end
 
