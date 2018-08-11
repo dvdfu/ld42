@@ -41,6 +41,7 @@ end
 
 function Game:update(dt)
     self.textbox:update(dt)
+    self.enemy:update(dt)
 end
 
 function Game:mousepressed(x, y)

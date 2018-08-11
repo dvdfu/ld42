@@ -14,9 +14,17 @@ end
 function Selection:draw()
     if self.type then
         local item = Items[self.type]
-        love.graphics.draw(item.sprite,
+        local x, y =
             love.mouse.getX() - item.width * Constants.CELL_SIZE / 2,
-            love.mouse.getY() - item.height * Constants.CELL_SIZE / 2)
+            love.mouse.getY() - item.height * Constants.CELL_SIZE / 2
+        love.graphics.setColor(0, 0, 0)
+        for i = 1, 8 do
+            local dx = math.cos(i / 8 * math.pi * 2) * 4;
+            local dy = math.sin(i / 8 * math.pi * 2) * 4;
+            love.graphics.draw(item.sprite, x + dx, y + dy)
+        end
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(item.sprite, x, y)
     end
 end
 
