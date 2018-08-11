@@ -34,4 +34,13 @@ function HitBox:containsPoint(x, y)
     return true
 end
 
+function HitBox:overlaps(other)
+    if self.pos.x > other.pos.x + other.size.x or
+        self.pos.x + self.size.x < other.pos.x or
+        self.pos.y > other.pos.y + other.size.y or
+        self.pos.y + self.size.y < other.pos.y then
+        return false end
+    return true
+end
+
 return HitBox

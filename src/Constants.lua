@@ -6,4 +6,5 @@ return {
     GAME_HEIGHT = 200,
     SCREEN_WIDTH = 320 * SCALE,
     SCREEN_HEIGHT = 200 * SCALE,
+    CELL_SIZE = 64
 }

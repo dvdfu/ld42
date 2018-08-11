@@ -1,7 +1,8 @@
 local Constants = require 'src.Constants'
 local Selection = require 'src.Selection'
-local TextBox = require 'src.objects.TextBox'
 local Inventory = require 'src.objects.Inventory'
+local ItemDrop = require 'src.objects.ItemDrop'
+local TextBox = require 'src.objects.TextBox'
 
 local Game = {}
 
@@ -12,10 +13,12 @@ end
 function Game:enter()
     self.textbox = TextBox('test text', 40, 400)
     self.inventory = Inventory(Constants.SCREEN_WIDTH - 300, 200)
-    self.inventory:addItem('HEART', 1, 0)
-    self.inventory:addItem('SWORD', 3, 1)
-    self.inventory:addItem('KNIFE', 1, 1)
-    self.inventory:addItem('PENDANT', 2, 0)
+    self.drops = {
+        ItemDrop('HEART', 40, 40),
+        ItemDrop('SWORD', 120, 40),
+        ItemDrop('KNIFE', 200, 40),
+        ItemDrop('PENDANT', 280, 40),
+    }
 end
 
 function Game:update(dt)
@@ -24,15 +27,24 @@ end
 
 function Game:mousepressed(x, y)
     self.inventory:mousepressed(x, y)
+    for _, drop in ipairs(self.drops) do
+        drop:mousepressed(x, y)
+    end
 end
 
 function Game:mousereleased(x, y)
     self.inventory:mousereleased(x, y)
+    for _, drop in ipairs(self.drops) do
+        drop:mousereleased(x, y)
+    end
 end
 
 function Game:draw()
     self.textbox:draw()
     self.inventory:draw()
+    for _, drop in ipairs(self.drops) do
+        drop:draw()
+    end
     Selection:draw()
 end
 

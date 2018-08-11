@@ -1,8 +1,7 @@
+local Constants = require 'src.Constants'
 local Items = require 'src.Items'
 
 local Selection = {}
-
-local CELL_SIZE = 64
 
 function Selection:init()
     self.selection = nil
@@ -13,8 +12,8 @@ function Selection:draw()
         local item = Items[self.selection.type]
         love.graphics.setColor(1, 1, 1, 0.5)
         love.graphics.draw(item.sprite,
-            love.mouse.getX() - item.width * CELL_SIZE / 2,
-            love.mouse.getY() - item.height * CELL_SIZE / 2)
+            love.mouse.getX() - item.width * Constants.CELL_SIZE / 2,
+            love.mouse.getY() - item.height * Constants.CELL_SIZE / 2)
         love.graphics.setColor(1, 1, 1, 1)
     end
 end
