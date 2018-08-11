@@ -1,7 +1,9 @@
+local Sprites = require 'src.Sprites'
+
 return {
     SLIME = {
         health = 5,
-        sprite = love.graphics.newImage('assets/slime.png'),
+        sprite = Sprites.ENEMY_SLIME,
         moves = {
             {
                 damage = 0,
@@ -14,6 +16,16 @@ return {
             {
                 damage = 2,
                 text = 'Slime body slammed you for 2 damage!',
+            },
+        },
+        drops = {
+            {
+                type = 'HEART',
+                chance = 0.7,
+            },
+            {
+                type = 'HEART',
+                chance = 0.2,
             },
         },
     },

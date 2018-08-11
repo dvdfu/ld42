@@ -2,12 +2,11 @@ local Class = require 'modules.hump.class'
 local Signal = require 'modules.hump.signal'
 local Enemies = require 'src.Enemies'
 local Items = require 'src.Items'
+local Sprites = require 'src.Sprites'
 local HitBox = require 'src.objects.HitBox'
 
 local Enemy = Class.new()
 Enemy:include(HitBox)
-
-local HEALTH_BORDER = love.graphics.newImage('assets/health_border.png')
 
 function Enemy:init(type, x, y)
     local enemy = Enemies[type]
@@ -27,7 +26,7 @@ function Enemy:draw()
     love.graphics.setColor(1, 0, 0)
     love.graphics.rectangle('fill', 4, 4, 120 * hp, 24)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.draw(HEALTH_BORDER)
+    love.graphics.draw(Sprites.HEALTH_BORDER)
     love.graphics.pop()
 
     love.graphics.pop()
