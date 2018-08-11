@@ -11,28 +11,39 @@ local CELL_SIZE = 64
 
 function Inventory:init(x, y)
     HitBox.init(self, x, y, WIDTH * CELL_SIZE, HEIGHT * CELL_SIZE)
-    self.items = {
-        {
-            type = 'HEART',
-            x = 1,
-            y = 0,
-        },
-        {
-            type = 'SWORD',
-            x = 3,
-            y = 1,
-        },
-        {
-            type = 'KNIFE',
-            x = 1,
-            y = 1,
-        },
-        {
-            type = 'PENDANT',
-            x = 2,
-            y = 0,
-        },
-    }
+    self.items = {}
+    self.selection = nil
+
+    self:addItem('HEART', 1, 0)
+    self:addItem('SWORD', 3, 1)
+    self:addItem('KNIFE', 1, 1)
+    self:addItem('PENDANT', 2, 0)
+end
+
+function Inventory:mousepressed(x, y)
+    local cx, cy =
+        math.floor((x - self.pos.x) / CELL_SIZE),
+        math.floor((y - self.pos.y) / CELL_SIZE)
+    local key = self:getItemAt(cx, cy)
+    if key == nil then return end
+    self.selection = self.items[key]
+    table.remove(self.items, key)
+end
+
+function Inventory:mousereleased(x, y)
+    if self.selection then
+        local type = self.selection.type
+        local item = Items[type]
+        local cx, cy =
+            math.floor((x - self.pos.x) / CELL_SIZE - (item.width - 1) / 2),
+            math.floor((y - self.pos.y) / CELL_SIZE - (item.height - 1) / 2)
+        if self:checkItemFits(type, cx, cy) then
+            self:addItem(type, cx, cy)
+        else
+            self:addItem(type, self.selection.x, self.selection.y)
+        end
+        self.selection = nil
+    end
 end
 
 function Inventory:draw()
@@ -64,14 +75,31 @@ function Inventory:draw()
 
     love.graphics.pop()
 
-    HitBox.draw(self)
+    -- draw selection
+    if self.selection then
+        local item = Items[self.selection.type]
+        love.graphics.setColor(1, 1, 1, 0.5)
+        love.graphics.draw(item.sprite,
+            love.mouse.getX() - item.width * CELL_SIZE / 2,
+            love.mouse.getY() - item.height * CELL_SIZE / 2)
+        love.graphics.setColor(1, 1, 1, 1)
+    end
 end
 
-function Inventory:checkItemFits(item, x, y)
+function Inventory:addItem(type, x, y)
+    table.insert(self.items, {
+        type = type,
+        x = x,
+        y = y,
+    })
+end
+
+function Inventory:checkItemFits(type, x, y)
     local board = {}
     for i = 0, WIDTH - 1 do
         board[i] = {}
     end
+
     for _, item in ipairs(self.items) do
         local data = Items[item.type]
         for i = item.x, item.x + data.width - 1 do
@@ -81,8 +109,9 @@ function Inventory:checkItemFits(item, x, y)
         end
     end
 
-    for i = x, x + item.width - 1 do
-        for j = y, y + item.height - 1 do
+    for i = x, x + Items[type].width - 1 do
+        for j = y, y + Items[type].height - 1 do
+            if not self:isValidPosition(i, j) then return false end
             if board[i][j] then return false end
         end
     end
@@ -90,12 +119,17 @@ function Inventory:checkItemFits(item, x, y)
     return true
 end
 
+function Inventory:isValidPosition(x, y)
+    return x >= 0 and x < WIDTH and y >= 0 and y < HEIGHT
+end
+
 function Inventory:getItemAt(x, y)
-    for _, item in ipairs(self.items) do
+    if not self:isValidPosition(x, y) then return nil end
+    for key, item in ipairs(self.items) do
         local data = Items[item.type]
         for i = item.x, item.x + data.width - 1 do
             for j = item.y, item.y + data.height - 1 do
-                if i == x and j == y then return item end
+                if i == x and j == y then return key end
             end
         end
     end

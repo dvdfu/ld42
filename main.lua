@@ -11,6 +11,14 @@ function love.update(dt)
     Gamestate.update(dt)
 end
 
+function love.mousepressed(x, y)
+    Gamestate.mousepressed(x, y)
+end
+
+function love.mousereleased(x, y)
+    Gamestate.mousereleased(x, y)
+end
+
 function love.draw()
     Gamestate.draw()
 end

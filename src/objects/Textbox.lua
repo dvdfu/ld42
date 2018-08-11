@@ -43,8 +43,6 @@ function TextBox:draw(x, y)
         'left')
 
     love.graphics.pop()
-
-    HitBox.draw(self)
 end
 
 function TextBox:setText(text)

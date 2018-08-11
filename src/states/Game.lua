@@ -17,9 +17,11 @@ function Game:update(dt)
 end
 
 function Game:mousepressed(x, y)
+    self.inventory:mousepressed(x, y)
 end
 
 function Game:mousereleased(x, y)
+    self.inventory:mousereleased(x, y)
 end
 
 function Game:draw()
