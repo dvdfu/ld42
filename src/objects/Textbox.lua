@@ -28,7 +28,7 @@ function TextBox:update(dt)
     end
 end
 
-function TextBox:draw(x, y)
+function TextBox:draw()
     love.graphics.push()
     love.graphics.translate(self.pos.x, self.pos.y)
 

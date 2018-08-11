@@ -1,5 +1,6 @@
 local Class = require 'modules.hump.class'
 local Items = require 'src.Items'
+local Selection = require 'src.Selection'
 local HitBox = require 'src.objects.HitBox'
 
 local Inventory = Class.new()
@@ -12,12 +13,6 @@ local CELL_SIZE = 64
 function Inventory:init(x, y)
     HitBox.init(self, x, y, WIDTH * CELL_SIZE, HEIGHT * CELL_SIZE)
     self.items = {}
-    self.selection = nil
-
-    self:addItem('HEART', 1, 0)
-    self:addItem('SWORD', 3, 1)
-    self:addItem('KNIFE', 1, 1)
-    self:addItem('PENDANT', 2, 0)
 end
 
 function Inventory:mousepressed(x, y)
@@ -26,13 +21,14 @@ function Inventory:mousepressed(x, y)
         math.floor((y - self.pos.y) / CELL_SIZE)
     local key = self:getItemAt(cx, cy)
     if key == nil then return end
-    self.selection = self.items[key]
+    Selection:set(self.items[key])
     table.remove(self.items, key)
 end
 
 function Inventory:mousereleased(x, y)
-    if self.selection then
-        local type = self.selection.type
+    local selection = Selection:get()
+    if selection then
+        local type = selection.type
         local item = Items[type]
         local cx, cy =
             math.floor((x - self.pos.x) / CELL_SIZE - (item.width - 1) / 2),
@@ -40,9 +36,9 @@ function Inventory:mousereleased(x, y)
         if self:checkItemFits(type, cx, cy) then
             self:addItem(type, cx, cy)
         else
-            self:addItem(type, self.selection.x, self.selection.y)
+            self:addItem(type, selection.x, selection.y)
         end
-        self.selection = nil
+        Selection:clear()
     end
 end
 
@@ -74,16 +70,6 @@ function Inventory:draw()
     end
 
     love.graphics.pop()
-
-    -- draw selection
-    if self.selection then
-        local item = Items[self.selection.type]
-        love.graphics.setColor(1, 1, 1, 0.5)
-        love.graphics.draw(item.sprite,
-            love.mouse.getX() - item.width * CELL_SIZE / 2,
-            love.mouse.getY() - item.height * CELL_SIZE / 2)
-        love.graphics.setColor(1, 1, 1, 1)
-    end
 end
 
 function Inventory:addItem(type, x, y)
