@@ -8,7 +8,7 @@ function love.load()
 end
 
 function love.update(dt)
-    Gamestate.update(1)
+    Gamestate.update(dt)
 end
 
 function love.draw()
