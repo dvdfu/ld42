@@ -1,9 +1,12 @@
-local Textbox = require 'src.objects.Textbox'
+local Constants = require 'src.Constants'
+local TextBox = require 'src.objects.TextBox'
+local Inventory = require 'src.objects.Inventory'
 
 local Game = {}
 
 function Game:init()
-    self.textbox = Textbox('test text')
+    self.textbox = TextBox('test text', 40, 400)
+    self.inventory = Inventory(Constants.SCREEN_WIDTH - 300, 200)
 end
 
 function Game:enter()
@@ -20,7 +23,8 @@ function Game:mousereleased(x, y)
 end
 
 function Game:draw()
-    self.textbox:draw(40, 40)
+    self.textbox:draw()
+    self.inventory:draw()
 end
 
 return Game
