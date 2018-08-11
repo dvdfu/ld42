@@ -1,4 +1,4 @@
-local Constants = require 'src.Constants'
+local Constants = require 'src.data.Constants'
 
 function love.conf(t)
     t.window.title = 'LD42'

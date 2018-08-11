@@ -1,7 +1,7 @@
 local Class = require 'modules.hump.class'
-local Constants = require 'src.Constants'
+local Constants = require 'src.data.Constants'
 local Selection = require 'src.Selection'
-local Sprites = require 'src.Sprites'
+local Sprites = require 'src.data.Sprites'
 local HitBox = require 'src.objects.HitBox'
 
 local Trash = Class.new()

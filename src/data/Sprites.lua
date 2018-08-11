@@ -9,6 +9,7 @@ return {
     ITEM_SWORD = love.graphics.newImage('assets/sword.png'),
     ITEM_PENDANT = love.graphics.newImage('assets/pendant.png'),
 
+    CELL = love.graphics.newImage('assets/cell.png'),
     HEALTH_BORDER = love.graphics.newImage('assets/health_border.png'),
     TEXT_PANEL = love.graphics.newImage('assets/textbox.png'),
     TRASH = love.graphics.newImage('assets/trash.png'),

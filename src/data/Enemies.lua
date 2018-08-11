@@ -1,4 +1,4 @@
-local Sprites = require 'src.Sprites'
+local Sprites = require 'src.data.Sprites'
 
 return {
     SLIME = {

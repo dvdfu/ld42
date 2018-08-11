@@ -1,6 +1,6 @@
 local Class = require 'modules.hump.class'
-local Constants = require 'src.Constants'
-local Items = require 'src.Items'
+local Constants = require 'src.data.Constants'
+local Items = require 'src.data.Items'
 local Selection = require 'src.Selection'
 local HitBox = require 'src.objects.HitBox'
 
@@ -15,13 +15,16 @@ function ItemDrop:init(type, x, y)
     self.item = item
     self.type = type
     self.selected = false
+    self.dead = false
 end
 
 function ItemDrop:mousepressed(x, y)
     if not self:containsPoint(x, y) then return false end
     self.selected = true
     Selection:set(self.type, function(used)
-        if not used then
+        if used then
+            self.dead = true
+        else
             self.selected = false
         end
     end)
@@ -32,6 +35,10 @@ function ItemDrop:draw()
     if not self.selected then
         love.graphics.draw(self.item.sprite, self.pos.x, self.pos.y)
     end
+end
+
+function ItemDrop:isDead()
+    return self.dead
 end
 
 function ItemDrop:getType()

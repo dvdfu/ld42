@@ -1,8 +1,9 @@
 local Class = require 'modules.hump.class'
 local Vector = require 'modules.hump.vector'
-local Constants = require 'src.Constants'
-local Items = require 'src.Items'
+local Constants = require 'src.data.Constants'
+local Items = require 'src.data.Items'
 local Selection = require 'src.Selection'
+local Sprites = require 'src.data.Sprites'
 local HitBox = require 'src.objects.HitBox'
 
 local Inventory = Class.new()
@@ -10,6 +11,7 @@ Inventory:include(HitBox)
 
 local WIDTH = 4
 local HEIGHT = 4
+local FONT = love.graphics.newFont('assets/renner.ttf', 32)
 
 function Inventory:init(x, y)
     HitBox.init(self, x, y,
@@ -42,27 +44,15 @@ function Inventory:draw()
     love.graphics.translate(self.pos.x, self.pos.y)
 
     -- draw the grid
-    love.graphics.setColor(0.3, 0.3, 0.3)
+    love.graphics.setColor(0.15, 0.15, 0.15)
     for i = 0, WIDTH - 1 do
         for j = 0, HEIGHT - 1 do
-            love.graphics.rectangle('line',
+            love.graphics.draw(Sprites.CELL,
                 i * Constants.CELL_SIZE,
-                j * Constants.CELL_SIZE,
-                Constants.CELL_SIZE,
-                Constants.CELL_SIZE)
+                j * Constants.CELL_SIZE)
         end
     end
     love.graphics.setColor(1, 1, 1)
-
-    -- draw the items
-    for i = 1, #self.items do
-        local item = self.items[i]
-        local sprite = Items[item.type].sprite
-        love.graphics.draw(sprite,
-            item.x * Constants.CELL_SIZE,
-            item.y * Constants.CELL_SIZE
-        )
-    end
 
     -- draw selection overlay
     local type = Selection:get()
@@ -81,15 +71,34 @@ function Inventory:draw()
 
         for i = cx, cx + item.width - 1 do
             for j = cy, cy + item.height - 1 do
-                love.graphics.rectangle('fill',
-                    i * Constants.CELL_SIZE,
-                    j * Constants.CELL_SIZE,
-                    Constants.CELL_SIZE,
-                    Constants.CELL_SIZE)
+                if self:isValidPosition(i, j) then
+                    love.graphics.draw(Sprites.CELL,
+                        i * Constants.CELL_SIZE,
+                        j * Constants.CELL_SIZE)
+                end
             end
         end
         love.graphics.setColor(1, 1, 1, 1)
     end
+
+    -- draw the items
+    local hp = 0
+    for i = 1, #self.items do
+        local item = self.items[i]
+        if item.type == 'HEART' then hp = hp + 1 end
+
+        local sprite = Items[item.type].sprite
+        love.graphics.draw(sprite,
+            item.x * Constants.CELL_SIZE,
+            item.y * Constants.CELL_SIZE
+        )
+    end
+
+    -- draw health
+    love.graphics.setColor(1, 0, 0)
+    love.graphics.setFont(FONT)
+    love.graphics.printf(hp .. ' HP', 0, -50, 256, 'right')
+    love.graphics.setColor(1, 1, 1)
 
     love.graphics.pop()
 end

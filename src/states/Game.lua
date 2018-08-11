@@ -1,7 +1,9 @@
 local Signal = require 'modules.hump.signal'
-local Constants = require 'src.Constants'
-local Items = require 'src.Items'
+local Constants = require 'src.data.Constants'
+local Items = require 'src.data.Items'
 local Selection = require 'src.Selection'
+local Sprites = require 'src.data.Sprites'
+local Animation = require 'src.Animation'
 local Enemy = require 'src.objects.Enemy'
 local Inventory = require 'src.objects.Inventory'
 local ItemDrop = require 'src.objects.ItemDrop'
@@ -26,7 +28,10 @@ function Game:enter()
         Constants.SCREEN_WIDTH - 3.5 * Constants.CELL_SIZE,
         Constants.SCREEN_HEIGHT - 2 * Constants.CELL_SIZE
     )
-    self.enemy = Enemy('SLIME', 200, 200)
+    self.enemies = {
+        Enemy('SLIME', 200, 200),
+    }
+    self.poof = Animation(Sprites.POOF_BIG, 4, 0.1, true)
     self.drops = {
         ItemDrop('HEART', 40, 40),
         ItemDrop('SWORD', 120, 40),
@@ -41,7 +46,21 @@ end
 
 function Game:update(dt)
     self.textbox:update(dt)
-    self.enemy:update(dt)
+    self.poof:update(dt)
+    for i, enemy in ipairs(self.enemies) do
+        if enemy:isDead() then
+            table.remove(self.enemies, i)
+            self.poof:play()
+        else
+            enemy:update(dt)
+        end
+    end
+
+    for i, drop in ipairs(self.drops) do
+        if drop:isDead() then
+            table.remove(self.drops, i)
+        end
+    end
 end
 
 function Game:mousepressed(x, y)
@@ -64,9 +83,11 @@ function Game:mousereleased(x, y)
             Selection:take()
             return
         end
-        if self.enemy:receiveItem(type, x, y) then
-            Selection:take()
-            return
+        for i, enemy in ipairs(self.enemies) do
+            if enemy:receiveItem(type, x, y) then
+                Selection:take()
+                return
+            end
         end
     end
     Selection:reset()
@@ -74,12 +95,15 @@ end
 
 function Game:draw()
     self.textbox:draw()
+    self.poof:draw(200, 200) -- TODO
     self.inventory:draw()
     for _, drop in ipairs(self.drops) do
         drop:draw()
     end
     self.trash:draw()
-    self.enemy:draw()
+    for i, enemy in ipairs(self.enemies) do
+        enemy:draw()
+    end
     Selection:draw()
 end
 

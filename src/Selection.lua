@@ -1,6 +1,6 @@
 local Signal = require 'modules.hump.signal'
-local Constants = require 'src.Constants'
-local Items = require 'src.Items'
+local Constants = require 'src.data.Constants'
+local Items = require 'src.data.Items'
 
 local Selection = {}
 
