@@ -1,3 +1,4 @@
+local Signal = require 'modules.hump.signal'
 local Constants = require 'src.Constants'
 local Items = require 'src.Items'
 
@@ -22,6 +23,7 @@ end
 function Selection:set(type, callback)
     self.type = type
     self.callback = callback or NO_CALLBACK
+    Signal.emit('item_select', type)
 end
 
 function Selection:take()

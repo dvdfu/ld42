@@ -4,13 +4,12 @@ local HitBox = require 'src.objects.HitBox'
 local TextBox = Class.new()
 TextBox:include(HitBox)
 
-local CHAR_SPEED = 0.02
-local WIDTH = 500
-local HEIGHT = 100
-local PADDING = 10
+local CHAR_SPEED = 0.005
+local PADDING = 24
+local BACKGROUND = love.graphics.newImage('assets/textbox.png')
 
-function TextBox:init(text, x, y)
-    HitBox.init(self, x, y, WIDTH, HEIGHT)
+function TextBox:init(text, x, y, w, h)
+    HitBox.init(self, x, y, w, h)
     self:setText(text or '')
 end
 
@@ -32,14 +31,12 @@ function TextBox:draw()
     love.graphics.push()
     love.graphics.translate(self.pos.x, self.pos.y)
 
-    love.graphics.setColor(0.3, 0.3, 0.3)
-    love.graphics.rectangle('fill', 0, 0, WIDTH, HEIGHT)
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.draw(BACKGROUND)
     love.graphics.printf(
         string.sub(self.text, 0, self.char),
         PADDING,
         PADDING,
-        WIDTH - PADDING * 2,
+        self.size.x - PADDING * 2,
         'left')
 
     love.graphics.pop()

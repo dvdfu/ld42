@@ -1,4 +1,6 @@
+local Signal = require 'modules.hump.signal'
 local Constants = require 'src.Constants'
+local Items = require 'src.Items'
 local Selection = require 'src.Selection'
 local Inventory = require 'src.objects.Inventory'
 local ItemDrop = require 'src.objects.ItemDrop'
@@ -12,15 +14,27 @@ function Game:init()
 end
 
 function Game:enter()
-    self.textbox = TextBox('test text', 40, 400)
-    self.inventory = Inventory(Constants.SCREEN_WIDTH - 300, 200)
+    self.textbox = TextBox('test text', 40, 400, 480, 128)
+    self.inventory = Inventory(
+        Constants.SCREEN_WIDTH - 5 * Constants.CELL_SIZE,
+        Constants.SCREEN_HEIGHT / 2 - 2 * Constants.CELL_SIZE)
+    self.inventory:addItem('HEART', 0, 0)
+    self.inventory:addItem('HEART', 1, 0)
+    self.inventory:addItem('HEART', 2, 0)
+    self.trash = Trash(
+        Constants.SCREEN_WIDTH - 3.5 * Constants.CELL_SIZE,
+        Constants.SCREEN_HEIGHT - 2 * Constants.CELL_SIZE
+    )
     self.drops = {
         ItemDrop('HEART', 40, 40),
         ItemDrop('SWORD', 120, 40),
         ItemDrop('KNIFE', 200, 40),
         ItemDrop('PENDANT', 280, 40),
     }
-    self.trash = Trash(40, 200)
+
+    Signal.register('item_select', function(type)
+        self.textbox:setText(Items[type].description)
+    end)
 end
 
 function Game:update(dt)
