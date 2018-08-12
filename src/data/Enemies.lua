@@ -2,7 +2,7 @@ local Sprites = require 'src.data.Sprites'
 
 return {
     SLIME = {
-        health = 6,
+        health = 3,
         sprite = Sprites.ENEMY_SLIME,
         moves = {
             {

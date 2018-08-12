@@ -1,4 +1,5 @@
 local Class = require 'modules.hump.class'
+local Vector = require 'modules.hump.vector'
 local Animation = require 'src.Animation'
 local Sprites = require 'src.data.Sprites'
 local Enemy = require 'src.objects.Enemy'
@@ -7,18 +8,21 @@ local Fight = Class.new()
 
 function Fight:init()
     self.enemies = {
-        Enemy('SLIME', 240, 200)
+        Enemy('SLIME', 120, 200),
+        Enemy('SLIME', 360, 200),
     }
     self.phase = 0 -- player turn
     self.waitingClick = false
 
     self.poof = Animation(Sprites.POOF_BIG, 4, 0.1, true)
+    self.poofPos = Vector()
 end
 
 function Fight:update(dt)
     for i, enemy in ipairs(self.enemies) do
         if enemy:isDead() then
             table.remove(self.enemies, i)
+            self.poofPos = enemy:getPosition()
             self.poof:play()
         else
             enemy:update(dt)
@@ -31,7 +35,7 @@ function Fight:draw()
     for _, enemy in ipairs(self.enemies) do
         enemy:draw()
     end
-    self.poof:draw(240, 200) -- TODO
+    self.poof:draw(self.poofPos:unpack())
 end
 
 function Fight:receiveItem(type, x, y)

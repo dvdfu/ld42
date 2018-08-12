@@ -27,6 +27,7 @@ function Game:init()
     end)
 
     Signal.register('damage_player', function(amount)
+        self.flash:play()
         self.inventory:loseHP(amount)
     end)
 end
@@ -47,12 +48,14 @@ function Game:enter()
     )
     self.drops = {}
     self.fight = Fight()
+    self.flash = Animation(Sprites.SCREEN_FLASH, 6, 0.05, true)
 end
 
 function Game:update(dt)
     self.inventory:update(dt)
     self.textbox:update(dt)
     self.fight:update(dt)
+    self.flash:update(dt)
 
     for i, drop in ipairs(self.drops) do
         if drop:isDead() then
@@ -84,6 +87,7 @@ function Game:mousereleased(x, y)
 end
 
 function Game:draw()
+    self.flash:draw()
     self.textbox:draw()
     self.inventory:draw()
     for _, drop in ipairs(self.drops) do

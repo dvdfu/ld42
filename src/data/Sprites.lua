@@ -15,6 +15,7 @@ return {
     HEALTH_BORDER = love.graphics.newImage('assets/health_border.png'),
     TEXT_PANEL = love.graphics.newImage('assets/text_panel.png'),
     TEXT_DOT = love.graphics.newImage('assets/text_dot.png'),
+    SCREEN_FLASH = love.graphics.newImage('assets/screen_flash.png'),
     TRASH = love.graphics.newImage('assets/trash.png'),
     TRASH_OPEN = love.graphics.newImage('assets/trash_open.png'),
 }
