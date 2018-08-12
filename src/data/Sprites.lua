@@ -1,5 +1,6 @@
 return {
     ENEMY_SLIME = love.graphics.newImage('assets/slime.png'),
+    ENEMY_WOLF = love.graphics.newImage('assets/wolf.png'),
 
     POOF_BIG = love.graphics.newImage('assets/poof_big.png'),
     SLASH = love.graphics.newImage('assets/slash.png'),

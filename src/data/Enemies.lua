@@ -25,4 +25,28 @@ return {
             },
         },
     },
+    WOLF = {
+        health = 7,
+        sprite = Sprites.ENEMY_WOLF,
+        moves = {
+            {
+                damage = 1,
+                text = 'Wolf lets out a deafening roar!',
+            },
+            {
+                damage = 2,
+                text = 'Wolf slashes with their claws!',
+            },
+        },
+        drops = {
+            {
+                type = 'SWORD',
+                chance = 0.5,
+            },
+            {
+                type = 'HEART',
+                chance = 0.5,
+            },
+        },
+    },
 }

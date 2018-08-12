@@ -44,7 +44,7 @@ function Game:enter()
     self.inventory:addItem('HEART', 3, 0)
     self.inventory:addItem('HEART', 3, 1)
     self.inventory:addItem('HEART', 3, 2)
-    self.inventory:addItem('KNIFE', 0, 0)
+    self.inventory:addItem('SWORD', 0, 0)
     self.inventory:addItem('SHIELD', 1, 0)
     self.trash = Trash(
         Constants.SCREEN_WIDTH - 2 * Constants.CELL_SIZE - 80,

@@ -10,8 +10,9 @@ local Fight = Class.new()
 
 function Fight:init()
     self.enemies = {
-        Enemy('SLIME', 120, 200),
-        Enemy('SLIME', 360, 200),
+        Enemy('SLIME', 40, 200),
+        Enemy('WOLF', 240, 220),
+        Enemy('SLIME', 440, 200),
     }
     self.phase = 0 -- player turn
     self.waitingClick = false
