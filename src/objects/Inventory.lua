@@ -1,8 +1,9 @@
 local Class = require 'modules.hump.class'
 local Vector = require 'modules.hump.vector'
+local Animation = require 'src.Animation'
+local Selection = require 'src.Selection'
 local Constants = require 'src.data.Constants'
 local Items = require 'src.data.Items'
-local Selection = require 'src.Selection'
 local Fonts = require 'src.data.Fonts'
 local Sprites = require 'src.data.Sprites'
 local HitBox = require 'src.objects.HitBox'
@@ -18,6 +19,12 @@ function Inventory:init(x, y)
         WIDTH * Constants.CELL_SIZE,
         HEIGHT * Constants.CELL_SIZE)
     self.items = {}
+    self.heartBreak = Animation(Sprites.HEART_BREAK, 4, 0.1, true)
+    self.heartBreakPos = Vector()
+end
+
+function Inventory:update(dt)
+    self.heartBreak:update(dt)
 end
 
 function Inventory:mousepressed(x, y)
@@ -91,6 +98,12 @@ function Inventory:draw()
         )
     end
 
+    -- draw heartbreak
+    local x, y =
+        (self.heartBreakPos.x + 0.5) * Constants.CELL_SIZE,
+        (self.heartBreakPos.y +0.5) * Constants.CELL_SIZE
+    self.heartBreak:draw(x, y, 0, 1, 1, 128, 64)
+
     -- draw health
     love.graphics.setColor(1, 0, 0)
     love.graphics.setFont(Fonts.RENNER_32)
@@ -130,9 +143,14 @@ function Inventory:getHP()
 end
 
 function Inventory:loseHP(amount)
+    assert(amount > 0)
     for i, item in ipairs(self.items) do
         if item.type == 'HEART' then
+            self.heartBreakPos = Vector(item.x, item.y)
+            self.heartBreak:play()
             table.remove(self.items, i)
+            amount = amount - 1
+            if amount == 0 then break end
         end
     end
 end

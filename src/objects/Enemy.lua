@@ -60,7 +60,7 @@ function Enemy:receiveItem(type, x, y)
     if item.damage then
         self:attack(item.damage)
     end
-    return false
+    return true
 end
 
 function Enemy:attack(damage)
@@ -88,7 +88,9 @@ end
 function Enemy:move()
     local moves = Enemies[self.type].moves
     local move = moves[math.random(1, #moves)]
-    Signal.emit('damage_player', move.damage)
+    if move.damage > 0 then
+        Signal.emit('damage_player', move.damage)
+    end
     Signal.emit('text', move.text)
 end
 

@@ -2,7 +2,7 @@ local Sprites = require 'src.data.Sprites'
 
 return {
     SLIME = {
-        health = 5,
+        health = 6,
         sprite = Sprites.ENEMY_SLIME,
         moves = {
             {
@@ -12,10 +12,6 @@ return {
             {
                 damage = 1,
                 text = 'Slime pounces you for 1 damage!',
-            },
-            {
-                damage = 2,
-                text = 'Slime body slammed you for 2 damage!',
             },
         },
         drops = {

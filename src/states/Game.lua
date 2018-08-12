@@ -19,6 +19,16 @@ function Game:init()
     Signal.register('text', function(text)
         self.textbox:setText(text)
     end)
+
+    Signal.register('text_end', function(text)
+        if self.fight:isWaitingClick() then
+            self.fight:nextPhase()
+        end
+    end)
+
+    Signal.register('damage_player', function(amount)
+        self.inventory:loseHP(amount)
+    end)
 end
 
 function Game:enter()
@@ -40,6 +50,7 @@ function Game:enter()
 end
 
 function Game:update(dt)
+    self.inventory:update(dt)
     self.textbox:update(dt)
     self.fight:update(dt)
 
@@ -51,7 +62,10 @@ function Game:update(dt)
 end
 
 function Game:mousepressed(x, y)
-    if not Selection:get() then
+    assert(not Selection:get())
+    if self.textbox:mousepressed(x, y) then return end
+
+    if self.fight:isPlayerTurn() then
         if self.inventory:mousepressed(x, y) then return end
         for _, drop in ipairs(self.drops) do
             if drop:mousepressed(x, y) then return end
