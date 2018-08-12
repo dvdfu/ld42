@@ -14,8 +14,8 @@ function Fight:init()
         Enemy('WOLF', 240, 220),
         Enemy('SLIME', 440, 200),
     }
-    self.phase = 0 -- player turn
-    self.waitingClick = false
+
+    self.events = {}
 
     self.poof = Animation(Sprites.POOF_BIG, 4, 0.1, true)
     self.poofPos = Vector()
@@ -58,38 +58,37 @@ function Fight:onEnemyDead(enemy)
 end
 
 function Fight:receiveItem(type, x, y)
-    assert(self.phase == 0)
+    assert(self:isPlayerTurn())
     for i, enemy in ipairs(self.enemies) do
         if enemy:receiveItem(type, x, y) then
-            self.waitingClick = true
+            self:addEvent('ENEMY', 1)
             return
         end
     end
 end
 
-function Fight:nextPhase()
-    self.waitingClick = false
-
-    if #self.enemies == 0 then
-        self.phase = 0
-        return
-    end
-
-    if self.phase == #self.enemies then
-        self.phase = 0
-    else
-        self.phase = self.phase + 1
-        self.enemies[self.phase]:move()
-        self.waitingClick = true
-    end
-end
-
 function Fight:isPlayerTurn()
-    return self.phase == 0 and not self.waitingClick
+    return #self.events == 0
 end
 
-function Fight:isWaitingClick()
-    return self.waitingClick
+function Fight:nextEvent()
+    assert(#self.events > 0)
+    local event = table.remove(self.events, 1)
+
+    if event.type == 'ENEMY' and #self.enemies > 0 then
+        local i = event.data
+        self.enemies[i]:move()
+        if i < #self.enemies then
+            self:addEvent('ENEMY', i + 1)
+        end
+    end
+end
+
+function Fight:addEvent(type, data)
+    table.insert(self.events, {
+        type = type,
+        data = data,
+    })
 end
 
 return Fight

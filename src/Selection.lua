@@ -10,12 +10,6 @@ local NO_CALLBACK = function(used) end
 function Selection:init()
     self.type = nil
     self.callback = NO_CALLBACK
-    self.squishTimer = Timer.new()
-    self.squish = 1
-end
-
-function Selection:update(dt)
-    self.squishTimer:update(dt)
 end
 
 function Selection:draw()
@@ -32,16 +26,13 @@ function Selection:draw()
             love.graphics.draw(item.sprite, x + dx, y + dy, 0, 1, 1, ox, oy)
         end
         love.graphics.setColor(1, 1, 1)
-        love.graphics.draw(item.sprite, x, y, 0,
-            self.squish, self.squish, ox, oy)
+        love.graphics.draw(item.sprite, x, y, 0, 1, 1, ox, oy)
     end
 end
 
 function Selection:set(type, callback)
     self.type = type
     self.callback = callback or NO_CALLBACK
-    self.squish = 1.5
-    self.squishTimer:tween(0.4, self, { squish = 1 }, 'out-elastic')
     Signal.emit('text', Items[self.type].description)
 end
 

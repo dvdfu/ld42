@@ -21,8 +21,8 @@ function Game:init()
     end)
 
     Signal.register('text_end', function(text)
-        if self.fight:isWaitingClick() then
-            self.fight:nextPhase()
+        if not self.fight:isPlayerTurn() then
+            self.fight:nextEvent()
         end
     end)
 
@@ -56,7 +56,6 @@ function Game:enter()
 end
 
 function Game:update(dt)
-    Selection:update(dt)
     self.inventory:update(dt)
     self.textbox:update(dt)
     self.fight:update(dt)
