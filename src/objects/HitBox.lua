@@ -30,6 +30,15 @@ function HitBox:draw()
     end
 end
 
+function HitBox:setPosition(x, y)
+    self.pos.x = x
+    self.pos.y = y
+end
+
+function HitBox:getPosition()
+    return self.pos
+end
+
 function HitBox:containsPoint(x, y)
     if x < self.pos.x then return false end
     if y < self.pos.y then return false end

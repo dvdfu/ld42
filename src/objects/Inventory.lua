@@ -3,6 +3,7 @@ local Vector = require 'modules.hump.vector'
 local Constants = require 'src.data.Constants'
 local Items = require 'src.data.Items'
 local Selection = require 'src.Selection'
+local Fonts = require 'src.data.Fonts'
 local Sprites = require 'src.data.Sprites'
 local HitBox = require 'src.objects.HitBox'
 
@@ -11,7 +12,6 @@ Inventory:include(HitBox)
 
 local WIDTH = 4
 local HEIGHT = 4
-local FONT = love.graphics.newFont('assets/renner.ttf', 32)
 
 function Inventory:init(x, y)
     HitBox.init(self, x, y,
@@ -82,11 +82,8 @@ function Inventory:draw()
     end
 
     -- draw the items
-    local hp = 0
     for i = 1, #self.items do
         local item = self.items[i]
-        if item.type == 'HEART' then hp = hp + 1 end
-
         local sprite = Items[item.type].sprite
         love.graphics.draw(sprite,
             item.x * Constants.CELL_SIZE,
@@ -96,8 +93,8 @@ function Inventory:draw()
 
     -- draw health
     love.graphics.setColor(1, 0, 0)
-    love.graphics.setFont(FONT)
-    love.graphics.printf(hp .. ' HP', 0, -50, 256, 'right')
+    love.graphics.setFont(Fonts.RENNER_32)
+    love.graphics.printf(self:getHP() .. ' HP', 0, -50, 256, 'right')
     love.graphics.setColor(1, 1, 1)
 
     love.graphics.pop()
@@ -113,10 +110,31 @@ function Inventory:receiveItem(type, x, y)
 
     if self:checkItemFits(type, cx, cy) then
         self:addItem(type, cx, cy)
+        Selection:take()
         return true
     end
 
     return false
+end
+
+function Inventory:getHP()
+    -- draw the items
+    local hp = 0
+    for i = 1, #self.items do
+        local item = self.items[i]
+        if item.type == 'HEART' then hp = hp + 1 end
+    end
+
+    if Selection:get() == 'HEART' then hp = hp + 1 end
+    return hp
+end
+
+function Inventory:loseHP(amount)
+    for i, item in ipairs(self.items) do
+        if item.type == 'HEART' then
+            table.remove(self.items, i)
+        end
+    end
 end
 
 function Inventory:addItem(type, cx, cy)

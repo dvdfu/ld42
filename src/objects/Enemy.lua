@@ -71,7 +71,7 @@ function Enemy:attack(damage)
 
     if self.health > damage then
         self.health = self.health - damage
-        Signal.emit('text', 'Hit for ' .. damage .. ' damage!')
+        Signal.emit('text', 'Hit for ' .. damage .. ' DMG!')
     else
         self.health = 0
         Signal.emit('text', 'Enemy slain!')

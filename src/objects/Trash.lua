@@ -12,7 +12,11 @@ function Trash:init(x, y)
 end
 
 function Trash:receiveItem(type, x, y)
-    return self:containsPoint(x, y)
+    if self:containsPoint(x, y) then
+        Selection:take()
+        return true
+    end
+    return false
 end
 
 function Trash:draw()

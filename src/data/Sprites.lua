@@ -8,6 +8,7 @@ return {
     ITEM_KNIFE = love.graphics.newImage('assets/knife.png'),
     ITEM_SWORD = love.graphics.newImage('assets/sword.png'),
     ITEM_PENDANT = love.graphics.newImage('assets/pendant.png'),
+    ITEM_SHIELD = love.graphics.newImage('assets/shield.png'),
 
     CELL = love.graphics.newImage('assets/cell.png'),
     HEALTH_BORDER = love.graphics.newImage('assets/health_border.png'),

@@ -27,4 +27,10 @@ return {
         sprite = Sprites.ITEM_PENDANT,
         description = 'Sparks fly from its gem.\nNullifies electric attacks.',
     },
+    SHIELD = {
+        width = 2,
+        height = 2,
+        sprite = Sprites.ITEM_SHIELD,
+        description = 'A trusty round wooden shield.\nReduces incoming attacks by up to 1 DMG.',
+    },
 }

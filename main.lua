@@ -4,6 +4,7 @@ local Game = require 'src.states.Game'
 local Gamestate = require 'modules.hump.gamestate'
 
 function love.load()
+    love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
     Gamestate.switch(Game)
 end
 
