@@ -2,7 +2,9 @@ local Class = require 'modules.hump.class'
 local Signal = require 'modules.hump.signal'
 local Vector = require 'modules.hump.vector'
 local Animation = require 'src.Animation'
+local Constants = require 'src.data.Constants'
 local Enemies = require 'src.data.Enemies'
+local Items = require 'src.data.Items'
 local Sprites = require 'src.data.Sprites'
 local Enemy = require 'src.objects.Enemy'
 
@@ -47,9 +49,12 @@ function Fight:onEnemyDead(enemy)
     for i, drop in ipairs(drops) do
         if math.random() < drop.chance then
             local x, y = enemy:getPosition():unpack()
+            local w, h =
+                Items[drop.type].width * Constants.CELL_SIZE,
+                Items[drop.type].height * Constants.CELL_SIZE
             Signal.emit('drop', drop.type,
-                x + math.random(0, 160) - 16,
-                y + math.random(0, 160) - 16)
+                x + 80 + math.random(-40, 40) - w / 2,
+                y + 80 + math.random(-40, 40) - h / 2)
         end
     end
 

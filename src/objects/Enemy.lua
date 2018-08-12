@@ -17,22 +17,27 @@ function Enemy:init(type, x, y)
     self.health = enemy.health
     self.dead = false
 
-    self.healthDisplay = self.health
     self.slash = Animation(Sprites.SLASH, 4, 0.1, true)
+
+    self.healthDisplay = self.health
+    self.spriteScale = 1
+    self.yOffset = 0
+
     self.hitTimer = Timer()
     self.healthTimer = Timer()
-    self.spriteScale = 1
+    self.moveTimer = Timer()
 end
 
 function Enemy:update(dt)
     self.slash:update(dt)
     self.hitTimer:update(dt)
     self.healthTimer:update(dt)
+    self.moveTimer:update(dt)
 end
 
 function Enemy:draw()
     love.graphics.push()
-    love.graphics.translate(self.pos.x, self.pos.y)
+    love.graphics.translate(self.pos.x, self.pos.y + self.yOffset)
     love.graphics.draw(Enemies[self.type].sprite,
         80, 160, 0,
         self.spriteScale,
@@ -93,6 +98,8 @@ function Enemy:move()
     if move.damage > 0 then
         Signal.emit('damage_player', move.damage)
     end
+    self.yOffset = -32
+    self.moveTimer:tween(0.5, self, { yOffset = 0 }, 'in-bounce')
     Signal.emit('text', move.text)
 end
 
