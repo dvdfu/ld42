@@ -1,4 +1,5 @@
 local Class = require 'modules.hump.class'
+local Vector = require 'modules.hump.vector'
 local Constants = require 'src.data.Constants'
 local Items = require 'src.data.Items'
 local Selection = require 'src.Selection'
@@ -43,6 +44,11 @@ end
 
 function ItemDrop:getType()
     return self.type
+end
+
+function ItemDrop:moveTowards(x, y)
+    local delta = Vector(x, y) - self.pos - self.size / 2
+    self.pos = self.pos + delta / 8
 end
 
 return ItemDrop

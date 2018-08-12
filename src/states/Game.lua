@@ -8,6 +8,7 @@ local Fight = require 'src.Fight'
 local Enemy = require 'src.objects.Enemy'
 local Inventory = require 'src.objects.Inventory'
 local ItemDrop = require 'src.objects.ItemDrop'
+local ItemDrops = require 'src.objects.ItemDrops'
 local TextBox = require 'src.objects.TextBox'
 local Trash = require 'src.objects.Trash'
 
@@ -30,14 +31,10 @@ function Game:init()
         self.flash:play()
         self.inventory:loseHP(amount)
     end)
-
-    Signal.register('drop', function(type, x, y)
-        table.insert(self.drops, ItemDrop(type, x, y))
-    end)
 end
 
 function Game:enter()
-    self.textbox = TextBox('', 80, Constants.SCREEN_HEIGHT - 128 - 80, 480, 128)
+    self.textbox = TextBox('', 80, Constants.SCREEN_HEIGHT - 128 - 40, 480, 128)
     self.inventory = Inventory(
         Constants.SCREEN_WIDTH - 5 * Constants.CELL_SIZE,
         Constants.SCREEN_HEIGHT / 2 - 2 * Constants.CELL_SIZE)
@@ -51,9 +48,9 @@ function Game:enter()
         Constants.SCREEN_WIDTH - 2 * Constants.CELL_SIZE - 80,
         Constants.SCREEN_HEIGHT - 2 * Constants.CELL_SIZE
     )
-    self.drops = {}
     self.fight = Fight()
     self.flash = Animation(Sprites.SCREEN_FLASH, 6, 0.05, true)
+    self.itemDrops = ItemDrops()
 end
 
 function Game:update(dt)
@@ -61,12 +58,7 @@ function Game:update(dt)
     self.textbox:update(dt)
     self.fight:update(dt)
     self.flash:update(dt)
-
-    for i, drop in ipairs(self.drops) do
-        if drop:isDead() then
-            table.remove(self.drops, i)
-        end
-    end
+    self.itemDrops:update(dt)
 end
 
 function Game:mousepressed(x, y)
@@ -75,9 +67,7 @@ function Game:mousepressed(x, y)
 
     if self.fight:isPlayerTurn() then
         if self.inventory:mousepressed(x, y) then return end
-        for _, drop in ipairs(self.drops) do
-            if drop:mousepressed(x, y) then return end
-        end
+        if self.itemDrops:mousepressed(x, y) then return end
     end
 end
 
@@ -95,9 +85,7 @@ function Game:draw()
     self.flash:draw()
     self.textbox:draw()
     self.inventory:draw()
-    for _, drop in ipairs(self.drops) do
-        drop:draw()
-    end
+    self.itemDrops:draw()
     self.trash:draw()
     self.fight:draw()
     Selection:draw()

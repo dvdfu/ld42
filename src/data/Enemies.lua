@@ -19,10 +19,6 @@ return {
                 type = 'HEART',
                 chance = 0.7,
             },
-            {
-                type = 'HEART',
-                chance = 0.2,
-            },
         },
     },
     WOLF = {
@@ -40,12 +36,12 @@ return {
         },
         drops = {
             {
-                type = 'SWORD',
-                chance = 0.5,
+                type = 'KNIFE',
+                chance = 0.3,
             },
             {
                 type = 'HEART',
-                chance = 0.5,
+                chance = 1,
             },
         },
     },

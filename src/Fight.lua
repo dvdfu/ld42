@@ -28,7 +28,7 @@ function Fight:update(dt)
         else
             enemy:update(dt)
             local x = 320 + -400 + 800 * i / (#self.enemies + 1)
-            local y = 220
+            local y = 200
             enemy:moveTowards(x, y)
         end
     end
@@ -62,6 +62,7 @@ function Fight:onEnemyDead(enemy)
     self.poofPos = enemy:getCenter()
     self.poof:play()
 
+    -- spawn new enemies
     if #self.enemies == 0 then
         self.events = {}
         self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
