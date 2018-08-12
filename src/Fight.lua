@@ -12,9 +12,9 @@ local Fight = Class.new()
 
 function Fight:init()
     self.enemies = {
-        Enemy('SLIME', 40, 200),
-        Enemy('WOLF', 240, 220),
-        Enemy('SLIME', 440, 200),
+        Enemy('SLIME', 120, 100),
+        Enemy('WOLF', 320, 100),
+        Enemy('SLIME', 520, 100),
     }
 
     self.events = {}

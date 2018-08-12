@@ -1,10 +1,11 @@
 local Class = require 'modules.hump.class'
 local Signal = require 'modules.hump.signal'
 local Timer = require 'modules.hump.timer'
+local Animation = require 'src.Animation'
+local Selection = require 'src.Selection'
 local Enemies = require 'src.data.Enemies'
 local Items = require 'src.data.Items'
 local Sprites = require 'src.data.Sprites'
-local Animation = require 'src.Animation'
 local HitBox = require 'src.objects.HitBox'
 
 local Enemy = Class.new()
@@ -12,7 +13,8 @@ Enemy:include(HitBox)
 
 function Enemy:init(type, x, y)
     local enemy = Enemies[type]
-    HitBox.init(self, x, y, enemy.sprite:getWidth(), enemy.sprite:getHeight())
+    local w, h = enemy.sprite:getDimensions()
+    HitBox.init(self, x - w / 2, y, w, h)
     self.type = type
     self.health = enemy.health
     self.dead = false
@@ -36,16 +38,30 @@ function Enemy:update(dt)
 end
 
 function Enemy:draw()
-    love.graphics.push()
-    love.graphics.translate(self.pos.x, self.pos.y + self.yOffset)
-    love.graphics.draw(Enemies[self.type].sprite,
-        80, 160, 0,
-        self.spriteScale,
-        1 / self.spriteScale,
-        80, 160)
+    local sprite = Enemies[self.type].sprite
 
     love.graphics.push()
-    love.graphics.translate(16, -32 - self.spriteScale * 16)
+    love.graphics.translate(
+        self.pos.x + sprite:getWidth() / 2,
+        self.pos.y + sprite:getHeight())
+
+    local selection = Selection:get()
+    if selection and
+        Items[selection].damage and
+        self:containsPoint(love.mouse.getPosition()) then
+        love.graphics.setColor(1, 0.5, 0.5)
+    end
+
+    love.graphics.draw(sprite,
+        0, self.yOffset, 0,
+        self.spriteScale,
+        1 / self.spriteScale,
+        sprite:getWidth() / 2,
+        sprite:getHeight())
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.push()
+    love.graphics.translate(-64, 32 - self.spriteScale * 16)
     local hp = self.healthDisplay / Enemies[self.type].health
     love.graphics.setColor(1, 0, 0)
     love.graphics.rectangle('fill', 4, 4, 120 * hp, 24)
@@ -53,7 +69,7 @@ function Enemy:draw()
     love.graphics.draw(Sprites.HEALTH_BORDER)
     love.graphics.pop()
 
-    self.slash:draw()
+    self.slash:draw(0, -sprite:getHeight() / 2, 0, 1, 1, 80, 80)
 
     love.graphics.pop()
 end
