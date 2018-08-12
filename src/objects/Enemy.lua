@@ -59,8 +59,10 @@ function Enemy:receiveItem(type, x, y)
     local item = Items[type]
     if item.damage then
         self:attack(item.damage)
+        return true
     end
-    return true
+
+    return false
 end
 
 function Enemy:attack(damage)
@@ -96,6 +98,10 @@ end
 
 function Enemy:isDead()
     return self.dead
+end
+
+function Enemy:getType()
+    return self.type
 end
 
 return Enemy

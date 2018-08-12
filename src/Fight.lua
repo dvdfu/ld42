@@ -1,6 +1,8 @@
 local Class = require 'modules.hump.class'
+local Signal = require 'modules.hump.signal'
 local Vector = require 'modules.hump.vector'
 local Animation = require 'src.Animation'
+local Enemies = require 'src.data.Enemies'
 local Sprites = require 'src.data.Sprites'
 local Enemy = require 'src.objects.Enemy'
 
@@ -22,8 +24,7 @@ function Fight:update(dt)
     for i, enemy in ipairs(self.enemies) do
         if enemy:isDead() then
             table.remove(self.enemies, i)
-            self.poofPos = enemy:getPosition()
-            self.poof:play()
+            self:onEnemyDead(enemy)
         else
             enemy:update(dt)
         end
@@ -36,6 +37,23 @@ function Fight:draw()
         enemy:draw()
     end
     self.poof:draw(self.poofPos:unpack())
+end
+
+function Fight:onEnemyDead(enemy)
+    local type = enemy:getType()
+    local drops = Enemies[type].drops
+
+    for i, drop in ipairs(drops) do
+        if math.random() < drop.chance then
+            local x, y = enemy:getPosition():unpack()
+            Signal.emit('drop', drop.type,
+                x + math.random(0, 160) - 16,
+                y + math.random(0, 160) - 16)
+        end
+    end
+
+    self.poofPos = enemy:getPosition()
+    self.poof:play()
 end
 
 function Fight:receiveItem(type, x, y)

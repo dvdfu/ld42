@@ -30,6 +30,10 @@ function Game:init()
         self.flash:play()
         self.inventory:loseHP(amount)
     end)
+
+    Signal.register('drop', function(type, x, y)
+        table.insert(self.drops, ItemDrop(type, x, y))
+    end)
 end
 
 function Game:enter()
@@ -52,6 +56,7 @@ function Game:enter()
 end
 
 function Game:update(dt)
+    Selection:update(dt)
     self.inventory:update(dt)
     self.textbox:update(dt)
     self.fight:update(dt)

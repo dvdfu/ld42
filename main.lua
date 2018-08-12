@@ -12,12 +12,16 @@ function love.update(dt)
     Gamestate.update(dt)
 end
 
-function love.mousepressed(x, y)
-    Gamestate.mousepressed(x, y)
+function love.mousepressed(x, y, button)
+    if button == 1 then
+        Gamestate.mousepressed(x, y)
+    end
 end
 
-function love.mousereleased(x, y)
-    Gamestate.mousereleased(x, y)
+function love.mousereleased(x, y, button)
+    if button == 1 then
+        Gamestate.mousereleased(x, y)
+    end
 end
 
 function love.draw()
