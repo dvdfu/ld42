@@ -45,6 +45,7 @@ function Game:enter()
     self.inventory:addItem('HEART', 3, 1)
     self.inventory:addItem('HEART', 3, 2)
     self.inventory:addItem('SWORD', 0, 0)
+    self.inventory:addItem('KNIFE', 2, 2)
     self.inventory:addItem('SHIELD', 1, 0)
     self.trash = Trash(
         Constants.SCREEN_WIDTH - 2 * Constants.CELL_SIZE - 80,
@@ -70,7 +71,7 @@ end
 
 function Game:mousepressed(x, y)
     assert(not Selection:get())
-    if self.textbox:mousepressed(x, y) then return end
+    self.textbox:mousepressed(x, y)
 
     if self.fight:isPlayerTurn() then
         if self.inventory:mousepressed(x, y) then return end

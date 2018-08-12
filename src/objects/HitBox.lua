@@ -39,6 +39,10 @@ function HitBox:getPosition()
     return self.pos
 end
 
+function HitBox:getCenter()
+    return self.pos + self.size / 2
+end
+
 function HitBox:containsPoint(x, y)
     if x < self.pos.x then return false end
     if y < self.pos.y then return false end

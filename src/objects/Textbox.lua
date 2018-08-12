@@ -30,7 +30,7 @@ function TextBox:update(dt)
 end
 
 function TextBox:mousepressed(x, y)
-    if not self:containsPoint(x, y) then return false end
+    -- if not self:containsPoint(x, y) then return false end
     if self:isWriting() then
         self:skip()
     else

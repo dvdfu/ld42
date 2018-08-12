@@ -1,6 +1,7 @@
 local Class = require 'modules.hump.class'
 local Signal = require 'modules.hump.signal'
 local Timer = require 'modules.hump.timer'
+local Vector = require 'modules.hump.vector'
 local Animation = require 'src.Animation'
 local Selection = require 'src.Selection'
 local Enemies = require 'src.data.Enemies'
@@ -45,12 +46,12 @@ function Enemy:draw()
         self.pos.x + sprite:getWidth() / 2,
         self.pos.y + sprite:getHeight())
 
-    local selection = Selection:get()
-    if selection and
-        Items[selection].damage and
-        self:containsPoint(love.mouse.getPosition()) then
-        love.graphics.setColor(1, 0.5, 0.5)
-    end
+    -- local selection = Selection:get()
+    -- if selection and
+    --     Items[selection].damage and
+    --     self:containsPoint(love.mouse.getPosition()) then
+    --     love.graphics.setColor(1, 0.5, 0.5)
+    -- end
 
     love.graphics.draw(sprite,
         0, self.yOffset, 0,
@@ -58,7 +59,8 @@ function Enemy:draw()
         1 / self.spriteScale,
         sprite:getWidth() / 2,
         sprite:getHeight())
-    love.graphics.setColor(1, 1, 1)
+
+    -- love.graphics.setColor(1, 1, 1)
 
     love.graphics.push()
     love.graphics.translate(-64, 32 - self.spriteScale * 16)
@@ -97,7 +99,7 @@ function Enemy:attack(damage)
         Signal.emit('text', 'Hit for ' .. damage .. ' DMG!')
     else
         self.health = 0
-        Signal.emit('text', 'Enemy slain!')
+        Signal.emit('text', 'Hit for ' .. damage .. ' DMG!\nEnemy slain!')
     end
 
     self.healthTimer:clear()
@@ -117,6 +119,11 @@ function Enemy:move()
     self.yOffset = -32
     self.moveTimer:tween(0.5, self, { yOffset = 0 }, 'in-bounce')
     Signal.emit('text', move.text)
+end
+
+function Enemy:moveTowards(x, y)
+    local delta = Vector(x, y) - self.pos - self.size / 2
+    self.pos = self.pos + delta / 2
 end
 
 function Enemy:isDead()

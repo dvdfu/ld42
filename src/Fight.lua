@@ -11,11 +11,8 @@ local Enemy = require 'src.objects.Enemy'
 local Fight = Class.new()
 
 function Fight:init()
-    self.enemies = {
-        Enemy('SLIME', 120, 100),
-        Enemy('WOLF', 320, 100),
-        Enemy('SLIME', 520, 100),
-    }
+    self.enemies = {}
+    self:addEnemy('SLIME')
 
     self.events = {}
 
@@ -30,6 +27,9 @@ function Fight:update(dt)
             self:onEnemyDead(enemy)
         else
             enemy:update(dt)
+            local x = 320 + -400 + 800 * i / (#self.enemies + 1)
+            local y = 220
+            enemy:moveTowards(x, y)
         end
     end
     self.poof:update(dt)
@@ -39,7 +39,8 @@ function Fight:draw()
     for _, enemy in ipairs(self.enemies) do
         enemy:draw()
     end
-    self.poof:draw(self.poofPos:unpack())
+    local x, y = self.poofPos:unpack()
+    self.poof:draw(x, y, 0, 1.5, 1.5, 80, 80)
 end
 
 function Fight:onEnemyDead(enemy)
@@ -58,8 +59,16 @@ function Fight:onEnemyDead(enemy)
         end
     end
 
-    self.poofPos = enemy:getPosition()
+    self.poofPos = enemy:getCenter()
     self.poof:play()
+
+    if #self.enemies == 0 then
+        self.events = {}
+        self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
+        if math.random() > 0.5 then
+            self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
+        end
+    end
 end
 
 function Fight:receiveItem(type, x, y)
@@ -80,9 +89,13 @@ function Fight:nextEvent()
     assert(#self.events > 0)
     local event = table.remove(self.events, 1)
 
-    if event.type == 'ENEMY' and #self.enemies > 0 then
+    if event.type == 'ENEMY' then
+        assert(#self.enemies > 0)
         local i = event.data
-        self.enemies[i]:move()
+        -- enemy might have already died
+        if self.enemies[i] then
+            self.enemies[i]:move()
+        end
         if i < #self.enemies then
             self:addEvent('ENEMY', i + 1)
         end
@@ -94,6 +107,11 @@ function Fight:addEvent(type, data)
         type = type,
         data = data,
     })
+end
+
+function Fight:addEnemy(type)
+    local enemy = Enemy(type, 320, -240)
+    table.insert(self.enemies, enemy)
 end
 
 return Fight

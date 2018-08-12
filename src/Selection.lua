@@ -33,7 +33,7 @@ end
 function Selection:set(type, callback)
     self.type = type
     self.callback = callback or NO_CALLBACK
-    Signal.emit('text', Items[self.type].description)
+    -- Signal.emit('text', Items[self.type].description)
 end
 
 function Selection:take()
