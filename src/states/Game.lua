@@ -23,7 +23,7 @@ function Game:init()
 
     Signal.register('text_end', function(text)
         if not self.fight:isPlayerTurn() then
-            self.fight:setPlayerTurn()
+            self.fight:nextEvent()
         end
     end)
 
@@ -51,7 +51,7 @@ function Game:enter()
     self.inventory:addItem('HEART', 3, 2)
     self.inventory:addItem('AXE', 0, 0)
     self.fight:addEnemy('SLIME')
-    self.fight:addEnemy('WOLF')
+    self.fight:addEnemy('SLIME')
 end
 
 function Game:update(dt)
@@ -83,8 +83,8 @@ function Game:mousereleased(x, y)
         end
 
         local enemy = self.fight:getEnemyAtPosition(x, y)
-        if enemy then
-            self.fight:useItemOnEnemy(item, enemy)
+        if enemy and Items[item].damage then
+            self.fight:submitPlayerMove(item, enemy)
             Selection:reset()
             return
         end

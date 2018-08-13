@@ -164,7 +164,6 @@ function Inventory:loseHP(amount)
 
     if amount > 0 or self:getHP() == 0 then
         Signal.emit('game_over')
-        Signal.emit('text', 'You ran out of HP and died!')
     end
 end
 

@@ -12,26 +12,29 @@ local Fight = Class.new()
 
 function Fight:init()
     self.enemies = {}
-    self.playerTurn = true
+    self.queue = {}
+    self.waitingForEnemies = false
 
     self.poof = Animation(Sprites.POOF_BIG, 4, 0.1, true)
     self.poofPos = Vector()
 
+    Signal.register('fight_event', function(...) self:queueEvent(...) end)
     Signal.register('game_over', function() end)
 end
 
 function Fight:update(dt)
     for i, enemy in ipairs(self.enemies) do
-        if enemy:isDead() then
-            table.remove(self.enemies, i)
-            self:onEnemyDead(enemy)
-        else
-            enemy:update(dt)
-            local x = 320 + -400 + 800 * i / (#self.enemies + 1)
-            local y = 240
-            enemy:moveTowards(x, y)
-        end
+        enemy:update(dt)
+        local x = 320 + -400 + 800 * i / (#self.enemies + 1)
+        local y = 240
+        enemy:moveTowards(x, y)
     end
+
+    if self.waitingForEnemies and self:isEnemiesReady() then
+        self.waitingForEnemies = false
+        self:nextEvent()
+    end
+
     self.poof:update(dt)
 end
 
@@ -41,6 +44,9 @@ function Fight:draw()
     end
     local x, y = self.poofPos:unpack()
     self.poof:draw(x, y, 0, 1.5, 1.5, 80, 80)
+    -- for i, event in ipairs(self.queue) do
+    --     love.graphics.print(i .. '\t' .. event.type, 0, i * 32)
+    -- end
 end
 
 function Fight:onEnemyDead(enemy)
@@ -62,14 +68,17 @@ function Fight:onEnemyDead(enemy)
     self.poofPos = enemy:getCenter()
     self.poof:play()
 
+    Signal.emit('text', Enemies[type].name .. ' fainted!')
+
     -- spawn new wave of enemies
     if #self.enemies == 0 then
-        self.playerTurn = true
-        self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
-        if math.random() > 0.5 then
-            self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
-        end
+        self:queueEvent('ENEMY_WAVE', nil, true)
     end
+end
+
+function Fight:addEnemy(type)
+    local enemy = Enemy(type, 320, -240)
+    table.insert(self.enemies, enemy)
 end
 
 function Fight:getEnemyAtPosition(x, y)
@@ -81,60 +90,82 @@ function Fight:getEnemyAtPosition(x, y)
     return nil
 end
 
-function Fight:useItemOnEnemy(item, enemy)
-    local itemData = Items[item]
-    assert(itemData)
-    self.playerTurn = false
-    if itemData.attackAll then
-        for _, other in ipairs(self.enemies) do
-            other:attack(itemData.damage)
-        end
-    else
-        enemy:attack(itemData.damage)
+function Fight:submitPlayerMove(item, enemy)
+    self:queueEvent('PLAYER_MOVE', {
+        item = item,
+        enemy = enemy,
+    })
+
+    for i, enemy in ipairs(self.enemies) do
+        self:queueEvent('ENEMY_MOVE', {
+            enemy = enemy
+        })
     end
-    self:enemyTurn()
+
+    self:nextEvent()
+end
+
+function Fight:nextEvent()
+    if self:isPlayerTurn() then return end
+
+    local event = table.remove(self.queue, 1)
+
+    if event.type == 'PLAYER_MOVE' then
+        self.waitingForEnemies = true
+        local itemData = Items[event.data.item]
+        assert(itemData)
+        if itemData.attackAll then
+            for _, enemy in ipairs(self.enemies) do
+                enemy:attack(itemData.damage)
+            end
+        else
+            event.data.enemy:attack(itemData.damage)
+        end
+    elseif event.type == 'ENEMY_MOVE' then
+        if event.data.enemy:isDead() then
+            self:nextEvent()
+        else
+            event.data.enemy:move()
+        end
+    elseif event.type == 'ENEMY_DIE' then
+        for i, enemy in ipairs(self.enemies) do
+            if enemy == event.data.enemy then
+                table.remove(self.enemies, i)
+                self:onEnemyDead(enemy)
+                break;
+            end
+        end
+    elseif event.type == 'ENEMY_WAVE' then
+        self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
+        if math.random() > 0.5 then
+            self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
+        end
+        Signal.emit('text', 'More foes approach!')
+    end
+end
+
+function Fight:queueEvent(type, data, immediate)
+    immediate = immediate or false
+    local event = {
+        type = type,
+        data = data,
+    }
+    if immediate then
+        table.insert(self.queue, 1, event)
+    else
+        table.insert(self.queue, event)
+    end
+end
+
+function Fight:isEnemiesReady()
+    for _, enemy in ipairs(self.enemies) do
+        if not enemy:isReady() then return false end
+    end
+    return true
 end
 
 function Fight:isPlayerTurn()
-    return self.playerTurn
-end
-
-function Fight:enemyTurn()
-    local enemy = self:getNextEnemy()
-    if enemy then
-        enemy:move()
-        -- TODO
-    else
-        -- no enemies left to move
-        self:setPlayerTurn()
-    end
-end
-
-function Fight:getNextEnemy()
-    for _, enemy in ipairs(self.enemies) do
-        assert(not enemy:isDead())
-        if not enemy:hasMoved() then
-            return enemy
-        end
-    end
-    return nil
-end
-
-function Fight:setPlayerTurn()
-    self.playerTurn = true
-
-    -- reset enemy turns
-    if #self.enemies > 0 then
-        for _, enemy in ipairs(self.enemies) do
-            assert(not enemy:isDead())
-            enemy:newTurn()
-        end
-    end
-end
-
-function Fight:addEnemy(type)
-    local enemy = Enemy(type, 320, -240)
-    table.insert(self.enemies, enemy)
+    return #self.queue == 0
 end
 
 return Fight

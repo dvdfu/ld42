@@ -18,8 +18,7 @@ function Enemy:init(type, x, y)
     HitBox.init(self, x - w / 2, y, w, h)
     self.type = type
     self.health = enemy.health
-    self.dead = false
-    self.moved = false
+    self.ready = true
 
     self.slash = Animation(Sprites.SLASH, 4, 0.1, true)
 
@@ -81,24 +80,29 @@ function Enemy:attack(damage)
         self.health = 0
     end
 
+    self.ready = false
     self.healthTimer:clear()
     self.healthTimer:tween(0.5, self, { healthDisplay = self.health }, 'out-cubic', function()
         if self.health == 0 then
-            self.dead = true
+            Signal.emit('fight_event', 'ENEMY_DIE', { enemy = self }, 1)
         end
+        self.ready = true
     end)
 end
 
 function Enemy:move()
-    assert(not self.moved)
-    self.moved = true
     local moves = Enemies[self.type].moves
     local move = moves[math.random(1, #moves)]
     if move.damage > 0 then
         Signal.emit('damage_player', move.damage)
     end
+
+    self.ready = false
     self.yOffset = -32
-    self.moveTimer:tween(0.5, self, { yOffset = 0 }, 'in-bounce')
+    self.moveTimer:tween(0.5, self, { yOffset = 0 }, 'in-bounce', function()
+        self.ready = true
+    end)
+
     Signal.emit('text', move.text)
 end
 
@@ -108,15 +112,11 @@ function Enemy:moveTowards(x, y)
 end
 
 function Enemy:isDead()
-    return self.dead
+    return self.health == 0
 end
 
-function Enemy:hasMoved()
-    return self.moved
-end
-
-function Enemy:newTurn()
-    self.moved = false
+function Enemy:isReady()
+    return self.ready
 end
 
 function Enemy:getType()
