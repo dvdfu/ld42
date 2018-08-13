@@ -12,13 +12,12 @@ local Fight = Class.new()
 
 function Fight:init()
     self.enemies = {}
-    self.events = {}
+    self.playerTurn = true
 
     self.poof = Animation(Sprites.POOF_BIG, 4, 0.1, true)
     self.poofPos = Vector()
 
-    Signal.register('game_over', function() self:clearEvents() end)
-    Signal.register('battle_event', function(...) self:addEvent(...) end)
+    Signal.register('game_over', function() end)
 end
 
 function Fight:update(dt)
@@ -62,6 +61,15 @@ function Fight:onEnemyDead(enemy)
 
     self.poofPos = enemy:getCenter()
     self.poof:play()
+
+    -- spawn new wave of enemies
+    if #self.enemies == 0 then
+        self.playerTurn = true
+        self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
+        if math.random() > 0.5 then
+            self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
+        end
+    end
 end
 
 function Fight:getEnemyAtPosition(x, y)
@@ -76,6 +84,7 @@ end
 function Fight:useItemOnEnemy(item, enemy)
     local itemData = Items[item]
     assert(itemData)
+    self.playerTurn = false
     if itemData.attackAll then
         for _, other in ipairs(self.enemies) do
             other:attack(itemData.damage)
@@ -83,34 +92,21 @@ function Fight:useItemOnEnemy(item, enemy)
     else
         enemy:attack(itemData.damage)
     end
-    self:addEvent('ENEMY_ATTACK')
+    self:enemyTurn()
 end
 
 function Fight:isPlayerTurn()
-    return #self.events == 0
+    return self.playerTurn
 end
 
-function Fight:nextEvent()
-    assert(#self.events > 0)
-    local event = table.remove(self.events, 1)
-
-    if event.type == 'ENEMY_ATTACK' then
-        local enemy = self:getNextEnemy()
-        if enemy then
-            enemy:move()
-            self:addEvent('ENEMY_ATTACK')
-        else
-            self:playerTurn()
-        end
-    end
-
-    -- spawn new enemies
-    if #self.enemies == 0 then
-        self:clearEvents()
-        self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
-        if math.random() > 0.5 then
-            self:addEnemy(math.random() > 0.7 and 'WOLF' or 'SLIME')
-        end
+function Fight:enemyTurn()
+    local enemy = self:getNextEnemy()
+    if enemy then
+        enemy:move()
+        -- TODO
+    else
+        -- no enemies left to move
+        self:setPlayerTurn()
     end
 end
 
@@ -124,32 +120,21 @@ function Fight:getNextEnemy()
     return nil
 end
 
-function Fight:playerTurn()
-    for _, enemy in ipairs(self.enemies) do
-        assert(not enemy:isDead())
-        enemy:newTurn()
-    end
-end
+function Fight:setPlayerTurn()
+    self.playerTurn = true
 
-function Fight:addEvent(type, data, immediate)
-    local event = {
-        type = type,
-        data = data or 0,
-    }
-    if immediate then
-        table.insert(self.events, 1, event)
-    else
-        table.insert(self.events, event)
+    -- reset enemy turns
+    if #self.enemies > 0 then
+        for _, enemy in ipairs(self.enemies) do
+            assert(not enemy:isDead())
+            enemy:newTurn()
+        end
     end
 end
 
 function Fight:addEnemy(type)
     local enemy = Enemy(type, 320, -240)
     table.insert(self.enemies, enemy)
-end
-
-function Fight:clearEvents()
-    self.events = {}
 end
 
 return Fight

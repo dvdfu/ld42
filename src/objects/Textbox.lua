@@ -10,9 +10,13 @@ TextBox:include(HitBox)
 local CHAR_SPEED = 0.005
 local PADDING = 34
 
-function TextBox:init(text, x, y, w, h)
+function TextBox:init(x, y, w, h)
     HitBox.init(self, x, y, w, h)
-    self:setText(text or '')
+    self.queue = {}
+    self.blank = true
+    self.text = nil
+    self.char = 0
+    self.time = 0
 end
 
 function TextBox:update(dt)
@@ -32,14 +36,18 @@ end
 function TextBox:tap()
     if self:isWriting() then
         self:skip()
-    else
+    elseif self:isTextQueued() then
+        local text = table.remove(self.queue, 1)
+        self:setText(text)
+    elseif not self.blank then
+        self.blank = true
         Signal.emit('text_end')
     end
     return true
 end
 
 function TextBox:draw()
-    if #self.text == 0 then return end
+    if self.blank then return end
 
     love.graphics.push()
     love.graphics.translate(self.pos.x, self.pos.y)
@@ -53,7 +61,7 @@ function TextBox:draw()
         self.size.x - PADDING * 2,
         'left')
 
-    if not self:isWriting() and #self.text > 0 then
+    if not self:isWriting() then
         love.graphics.draw(Sprites.TEXT_DOT,
             self.size.x - 30,
             self.size.y - 30,
@@ -63,7 +71,16 @@ function TextBox:draw()
     love.graphics.pop()
 end
 
+function TextBox:queueText(text)
+    if self.blank then
+        self:setText(text)
+    else
+        table.insert(self.queue, text)
+    end
+end
+
 function TextBox:setText(text)
+    self.blank = false
     self.text = text
     self.char = 0
     self.time = 0
@@ -74,7 +91,12 @@ function TextBox:skip()
 end
 
 function TextBox:isWriting()
+    if self.blank then return false end
     return self.char < string.len(self.text)
+end
+
+function TextBox:isTextQueued()
+    return #self.queue > 0
 end
 
 return TextBox

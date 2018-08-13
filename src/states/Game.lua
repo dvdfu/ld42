@@ -18,12 +18,12 @@ function Game:init()
     Selection:init()
 
     Signal.register('text', function(text)
-        self.textbox:setText(text)
+        self.textbox:queueText(text)
     end)
 
     Signal.register('text_end', function(text)
         if not self.fight:isPlayerTurn() then
-            self.fight:nextEvent()
+            self.fight:setPlayerTurn()
         end
     end)
 
@@ -34,7 +34,7 @@ function Game:init()
 end
 
 function Game:enter()
-    self.textbox = TextBox('', 80, Constants.SCREEN_HEIGHT - 128 - 40, 480, 128)
+    self.textbox = TextBox(80, Constants.SCREEN_HEIGHT - 128 - 40, 480, 128)
     self.inventory = Inventory(
         Constants.SCREEN_WIDTH - 5 * Constants.CELL_SIZE,
         Constants.SCREEN_HEIGHT / 2 - 2 * Constants.CELL_SIZE)
@@ -51,6 +51,7 @@ function Game:enter()
     self.inventory:addItem('HEART', 3, 2)
     self.inventory:addItem('AXE', 0, 0)
     self.fight:addEnemy('SLIME')
+    self.fight:addEnemy('WOLF')
 end
 
 function Game:update(dt)
@@ -99,10 +100,6 @@ function Game:draw()
     self.trash:draw()
     self.fight:draw()
     Selection:draw()
-end
-
-function Game:isBusy()
-    return self.fight:isPlayerTurn()
 end
 
 return Game
