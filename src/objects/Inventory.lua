@@ -1,5 +1,7 @@
 local Class = require 'modules.hump.class'
 local Vector = require 'modules.hump.vector'
+local Signal = require 'modules.hump.signal'
+local Vector = require 'modules.hump.vector'
 local Animation = require 'src.Animation'
 local Selection = require 'src.Selection'
 local Constants = require 'src.data.Constants'
@@ -19,6 +21,8 @@ function Inventory:init(x, y)
         WIDTH * Constants.CELL_SIZE,
         HEIGHT * Constants.CELL_SIZE)
     self.items = {}
+    self.active = true
+
     self.heartBreak = Animation(Sprites.HEART_BREAK, 4, 0.1, true)
     self.heartBreakPos = Vector()
 end
@@ -89,6 +93,9 @@ function Inventory:draw()
     end
 
     -- draw the items
+    if not self.active then
+        love.graphics.setColor(0.5, 0.5, 0.5)
+    end
     for i = 1, #self.items do
         local item = self.items[i]
         local sprite = Items[item.type].sprite
@@ -97,6 +104,7 @@ function Inventory:draw()
             item.y * Constants.CELL_SIZE
         )
     end
+    love.graphics.setColor(1, 1, 1, 1)
 
     -- draw heartbreak
     local x, y =
@@ -113,16 +121,16 @@ function Inventory:draw()
     love.graphics.pop()
 end
 
-function Inventory:receiveItem(type, x, y)
+function Inventory:receiveItem(item, x, y)
     if not self:containsPoint(x, y) then return false end
 
-    local item = Items[type]
+    local itemData = Items[item]
     local cx, cy =
-        math.floor((x - self.pos.x) / Constants.CELL_SIZE - (item.width - 1) / 2),
-        math.floor((y - self.pos.y) / Constants.CELL_SIZE - (item.height - 1) / 2)
+        math.floor((x - self.pos.x) / Constants.CELL_SIZE - (itemData.width - 1) / 2),
+        math.floor((y - self.pos.y) / Constants.CELL_SIZE - (itemData.height - 1) / 2)
 
-    if self:checkItemFits(type, cx, cy) then
-        self:addItem(type, cx, cy)
+    if self:checkItemFits(item, cx, cy) then
+        self:addItem(item, cx, cy)
         Selection:take()
         return true
     end
@@ -153,12 +161,18 @@ function Inventory:loseHP(amount)
             if amount == 0 then break end
         end
     end
+
+    if amount > 0 or self:getHP() == 0 then
+        Signal.emit('game_over')
+        Signal.emit('text', 'You ran out of HP and died!')
+    end
 end
 
-function Inventory:addItem(type, cx, cy)
+function Inventory:addItem(item, cx, cy)
     assert(self:isValidPosition(cx, cy))
+    assert(self:checkItemFits(item, cx, cy))
     table.insert(self.items, {
-        type = type,
+        type = item,
         x = cx,
         y = cy,
     })
@@ -204,6 +218,10 @@ function Inventory:getItemAt(cx, cy)
         end
     end
     return nil
+end
+
+function Inventory:setActive(active)
+    self.active = active
 end
 
 return Inventory

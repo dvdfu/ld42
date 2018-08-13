@@ -38,12 +38,6 @@ function Game:enter()
     self.inventory = Inventory(
         Constants.SCREEN_WIDTH - 5 * Constants.CELL_SIZE,
         Constants.SCREEN_HEIGHT / 2 - 2 * Constants.CELL_SIZE)
-    self.inventory:addItem('HEART', 3, 0)
-    self.inventory:addItem('HEART', 3, 1)
-    self.inventory:addItem('HEART', 3, 2)
-    self.inventory:addItem('SWORD', 0, 0)
-    self.inventory:addItem('KNIFE', 2, 2)
-    self.inventory:addItem('SHIELD', 1, 0)
     self.trash = Trash(
         Constants.SCREEN_WIDTH - 2 * Constants.CELL_SIZE - 80,
         Constants.SCREEN_HEIGHT - 2 * Constants.CELL_SIZE
@@ -51,6 +45,12 @@ function Game:enter()
     self.fight = Fight()
     self.flash = Animation(Sprites.SCREEN_FLASH, 6, 0.05, true)
     self.itemDrops = ItemDrops()
+
+    self.inventory:addItem('HEART', 3, 0)
+    self.inventory:addItem('HEART', 3, 1)
+    self.inventory:addItem('HEART', 3, 2)
+    self.inventory:addItem('AXE', 0, 0)
+    self.fight:addEnemy('SLIME')
 end
 
 function Game:update(dt)
@@ -59,6 +59,7 @@ function Game:update(dt)
     self.fight:update(dt)
     self.flash:update(dt)
     self.itemDrops:update(dt)
+    self.inventory:setActive(self.fight:isPlayerTurn())
 end
 
 function Game:mousepressed(x, y)
@@ -72,11 +73,20 @@ function Game:mousepressed(x, y)
 end
 
 function Game:mousereleased(x, y)
-    local type = Selection:get()
-    if type then
-        if self.inventory:receiveItem(type, x, y) then return end
-        if self.trash:receiveItem(type, x, y) then return end
-        if self.fight:receiveItem(type, x, y) then return end
+    local item = Selection:get()
+    if item then
+        if self.inventory:receiveItem(item, x, y) then return end
+        if self.trash:containsPoint(x, y) then
+            Selection:take()
+            return
+        end
+
+        local enemy = self.fight:getEnemyAtPosition(x, y)
+        if enemy then
+            self.fight:useItemOnEnemy(item, enemy)
+            Selection:reset()
+            return
+        end
     end
     Selection:reset()
 end
@@ -89,6 +99,10 @@ function Game:draw()
     self.trash:draw()
     self.fight:draw()
     Selection:draw()
+end
+
+function Game:isBusy()
+    return self.fight:isPlayerTurn()
 end
 
 return Game

@@ -2,6 +2,7 @@ local Sprites = require 'src.data.Sprites'
 
 return {
     SLIME = {
+        name = 'Slime',
         health = 3,
         sprite = Sprites.ENEMY_SLIME,
         moves = {
@@ -17,11 +18,12 @@ return {
         drops = {
             {
                 type = 'HEART',
-                chance = 0.7,
+                chance = 0.5,
             },
         },
     },
     WOLF = {
+        name = 'Wolf',
         health = 7,
         sprite = Sprites.ENEMY_WOLF,
         moves = {

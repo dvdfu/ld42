@@ -19,6 +19,7 @@ function Enemy:init(type, x, y)
     self.type = type
     self.health = enemy.health
     self.dead = false
+    self.moved = false
 
     self.slash = Animation(Sprites.SLASH, 4, 0.1, true)
 
@@ -46,13 +47,6 @@ function Enemy:draw()
         self.pos.x + sprite:getWidth() / 2,
         self.pos.y + sprite:getHeight())
 
-    -- local selection = Selection:get()
-    -- if selection and
-    --     Items[selection].damage and
-    --     self:containsPoint(love.mouse.getPosition()) then
-    --     love.graphics.setColor(1, 0.5, 0.5)
-    -- end
-
     love.graphics.draw(sprite,
         0, self.yOffset, 0,
         self.spriteScale,
@@ -60,10 +54,8 @@ function Enemy:draw()
         sprite:getWidth() / 2,
         sprite:getHeight())
 
-    -- love.graphics.setColor(1, 1, 1)
-
     love.graphics.push()
-    love.graphics.translate(-64, 32 - self.spriteScale * 16)
+    love.graphics.translate(-64, -sprite:getHeight() - 32 - self.spriteScale * 16)
     local hp = self.healthDisplay / Enemies[self.type].health
     love.graphics.setColor(1, 0, 0)
     love.graphics.rectangle('fill', 4, 4, 120 * hp, 24)
@@ -76,30 +68,18 @@ function Enemy:draw()
     love.graphics.pop()
 end
 
-function Enemy:receiveItem(type, x, y)
-    if not self:containsPoint(x, y) then return false end
-
-    local item = Items[type]
-    if item.damage then
-        self:attack(item.damage)
-        return true
-    end
-
-    return false
-end
-
 function Enemy:attack(damage)
+    assert(damage > 0)
     self.slash:play()
     self.spriteScale = 1.5
     self.hitTimer:clear()
     self.hitTimer:tween(0.5, self, { spriteScale = 1 }, 'out-elastic')
+    Signal.emit('text', 'Hit for ' .. damage .. ' DMG!')
 
     if self.health > damage then
         self.health = self.health - damage
-        Signal.emit('text', 'Hit for ' .. damage .. ' DMG!')
     else
         self.health = 0
-        Signal.emit('text', 'Hit for ' .. damage .. ' DMG!\nEnemy slain!')
     end
 
     self.healthTimer:clear()
@@ -111,6 +91,8 @@ function Enemy:attack(damage)
 end
 
 function Enemy:move()
+    assert(not self.moved)
+    self.moved = true
     local moves = Enemies[self.type].moves
     local move = moves[math.random(1, #moves)]
     if move.damage > 0 then
@@ -123,11 +105,19 @@ end
 
 function Enemy:moveTowards(x, y)
     local delta = Vector(x, y) - self.pos - self.size / 2
-    self.pos = self.pos + delta / 2
+    self.pos = self.pos + delta / 8
 end
 
 function Enemy:isDead()
     return self.dead
+end
+
+function Enemy:hasMoved()
+    return self.moved
+end
+
+function Enemy:newTurn()
+    self.moved = false
 end
 
 function Enemy:getType()

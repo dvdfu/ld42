@@ -21,6 +21,14 @@ return {
         description = 'Worthy of a fighter.\nAttacks for 4 DMG.',
         damage = 4,
     },
+    AXE = {
+        width = 3,
+        height = 2,
+        sprite = Sprites.ITEM_AXE,
+        description = 'A truly barbaric weapon.\nAttacks all enemies for 5 DMG.',
+        damage = 5,
+        attackAll = true,
+    },
     PENDANT = {
         width = 2,
         height = 1,
