@@ -29,12 +29,10 @@ function TextBox:update(dt)
     end
 end
 
-function TextBox:mousepressed(x, y)
-    -- if not self:containsPoint(x, y) then return false end
+function TextBox:tap()
     if self:isWriting() then
         self:skip()
     else
-        self:setText('')
         Signal.emit('text_end')
     end
     return true

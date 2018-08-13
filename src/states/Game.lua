@@ -40,8 +40,8 @@ function Game:enter()
         Constants.SCREEN_HEIGHT / 2 - 2 * Constants.CELL_SIZE)
     self.trash = Trash(
         Constants.SCREEN_WIDTH - 2 * Constants.CELL_SIZE - 80,
-        Constants.SCREEN_HEIGHT - 2 * Constants.CELL_SIZE
-    )
+        Constants.SCREEN_HEIGHT - 2 * Constants.CELL_SIZE)
+
     self.fight = Fight()
     self.flash = Animation(Sprites.SCREEN_FLASH, 6, 0.05, true)
     self.itemDrops = ItemDrops()
@@ -64,7 +64,7 @@ end
 
 function Game:mousepressed(x, y)
     assert(not Selection:get())
-    self.textbox:mousepressed(x, y)
+    self.textbox:tap()
 
     if self.fight:isPlayerTurn() then
         if self.inventory:mousepressed(x, y) then return end

@@ -4,7 +4,7 @@ return {
     SLIME = {
         name = 'Slime',
         health = 3,
-        sprite = Sprites.ENEMY_SLIME,
+        sprite = Sprites.enemies.SLIME,
         moves = {
             {
                 damage = 0,
@@ -12,7 +12,7 @@ return {
             },
             {
                 damage = 1,
-                text = 'Slime pounces you for 1 damage!',
+                text = 'Slime pounces onto you!',
             },
         },
         drops = {
@@ -25,7 +25,7 @@ return {
     WOLF = {
         name = 'Wolf',
         health = 7,
-        sprite = Sprites.ENEMY_WOLF,
+        sprite = Sprites.enemies.WOLF,
         moves = {
             {
                 damage = 1,

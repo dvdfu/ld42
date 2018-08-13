@@ -74,11 +74,12 @@ function Enemy:attack(damage)
     self.spriteScale = 1.5
     self.hitTimer:clear()
     self.hitTimer:tween(0.5, self, { spriteScale = 1 }, 'out-elastic')
-    Signal.emit('text', 'Hit for ' .. damage .. ' DMG!')
 
     if self.health > damage then
+        Signal.emit('text', 'Hit for ' .. damage .. ' DMG!')
         self.health = self.health - damage
     else
+        Signal.emit('text', 'Hit for ' .. damage .. ' DMG!\nEnemy was slain!')
         self.health = 0
     end
 
